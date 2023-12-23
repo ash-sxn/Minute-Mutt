@@ -1,4 +1,4 @@
-package main
+package auth
 
 import (
 	"encoding/json"
@@ -17,7 +17,6 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/youtube/v3"
 )
 
 // This variable indicates whether the script should launch a web server to
@@ -58,7 +57,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 // getClient uses a Context and Config to retrieve a Token
 // then generate a Client. It returns the generated Client.
-func getClient(scope string) *http.Client {
+func GetClient(scope string) *http.Client {
 	ctx := context.Background()
 
 	b, err := ioutil.ReadFile("client_secret.json")
@@ -72,8 +71,6 @@ func getClient(scope string) *http.Client {
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}
-
-	config.Scopes = []string{youtube.YoutubeReadonlyScope} // add scopes
 
 	// Use a redirect URI like this for a web app. The redirect URI must be a
 	// valid one for your OAuth2 credentials.
