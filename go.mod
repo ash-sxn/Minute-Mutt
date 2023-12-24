@@ -3,7 +3,7 @@ module github.com/ash-sxn/Minute-Mutt
 go 1.19
 
 require (
-	github.com/kkdai/youtube/v2 v2.9.0
+	github.com/kkdai/youtube/v2 v2.7.0
 	golang.org/x/net v0.19.0
 	golang.org/x/oauth2 v0.15.0
 	google.golang.org/api v0.154.0
@@ -12,6 +12,8 @@ require (
 require (
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	github.com/VividCortex/ewma v1.2.0 // indirect
+	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dop251/goja v0.0.0-20230828202809-3dbe69dd2b8e // indirect
@@ -26,6 +28,10 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
+	github.com/marstay/youtubedl/v2 v2.0.0-20210626141102-e4932adf5a1b // indirect
+	github.com/mattn/go-runewidth v0.0.12 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/vbauerster/mpb/v5 v5.4.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1 // indirect
 	go.opentelemetry.io/otel v1.21.0 // indirect

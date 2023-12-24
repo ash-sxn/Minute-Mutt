@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ash-sxn/Minute-Mutt/pkg/auth"
+	"github.com/ash-sxn/Minute-Mutt/pkg/downloader"
 	"github.com/ash-sxn/Minute-Mutt/pkg/util"
 	myYoutube "github.com/ash-sxn/Minute-Mutt/pkg/youtube" // Alias for local youtube package
 	"google.golang.org/api/youtube/v3"
@@ -39,18 +41,31 @@ func main() {
 		}
 	}
 
-	// Print the list of videos in the queue
+	outputDir := "./"
+	maxResolution := "1080"
+	startTime := "22:00"
+	endTime := "06:00"
+	csvHistoryFilename := "pkg/database/history_queue.csv"
+
+	// Load the history of downloaded videos
+	downloadedVideos, err := util.LoadDownloadedVideos(csvHistoryFilename)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Fatalf("Error loading downloaded videos history: %v", err)
+		}
+		// If the file does not exist, proceed with an empty list
+		downloadedVideos = make(map[string]struct{})
+	}
+
+	// Print the list of videos in the queue and download if not already downloaded
 	fmt.Println("Queue of latest videos:")
 	for _, video := range videoQueue.Videos {
 		fmt.Printf("ID: %s, Title: %s\n", video.ID, video.Title)
+		if _, alreadyDownloaded := downloadedVideos[video.ID]; !alreadyDownloaded {
+			downloader.DownloadVideo(video.ID, outputDir, maxResolution, startTime, endTime)
+			util.AddVideoToCSV(video, csvHistoryFilename)
+		} else {
+			fmt.Printf("Video %s has already been downloaded. Skipping.\n", video.ID)
+		}
 	}
-
-	// Save the queue to a csv file
-	csvFilename := "pkg/database/video_queue.csv"
-	if err := videoQueue.SaveToCSV(csvFilename); err != nil {
-		log.Fatalf("Failed to save video queue to CSV: %v", err)
-	}
-	fmt.Printf("Saved video queue to %s\n", csvFilename)
-
-	// ... code to download videos and remove them from the queue ...
 }
