@@ -5,6 +5,7 @@ FROM golang:1.20
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-venv \
+    cron supervisor \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -20,6 +21,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Set default environment variables needed for our image
 ENV OUTPUT_DIR="/watch"
 ENV MAX_RESOLUTION="144"
+ENV CRON_SCHEDULE="59 23 31 2 *"
+
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -33,5 +36,12 @@ RUN go mod download
 # Build the Go app
 RUN go build -o main .
 
-# Command to run the executable
-CMD ["./main"]
+# Copy the supervisord configuration file
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy the script that will set up the cron job
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Start supervisord as the default command of the container
+CMD ["/entrypoint.sh"]
