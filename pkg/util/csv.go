@@ -2,7 +2,9 @@ package util
 
 import (
 	"encoding/csv"
+	"html"
 	"os"
+	"strings"
 
 	myYoutube "github.com/ash-sxn/Minute-Mutt/pkg/youtube"
 )
@@ -45,6 +47,12 @@ func AddVideoToCSV(video myYoutube.Video, filename string) error {
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
+
+	// Unescape HTML entities in the video title
+	video.Title = html.UnescapeString(video.Title)
+
+	// Sanitize the video title
+	video.Title = strings.ReplaceAll(video.Title, "'", "_")
 
 	// Write the video data
 	if err := writer.Write([]string{video.ID, video.Title}); err != nil {

@@ -42,7 +42,7 @@ import (
 //     config.RedirectURL = "urn:ietf:wg:oauth:2.0:oob"
 //  3. When running the script, complete the auth flow. Then copy the
 //     authorization code from the browser and enter it on the command line.
-const launchWebServer = true
+const launchWebServer = false
 
 const missingClientSecretsMessage = `
 Please configure OAuth 2.0
@@ -74,9 +74,9 @@ func GetClient(scope string) *http.Client {
 
 	// Use a redirect URI like this for a web app. The redirect URI must be a
 	// valid one for your OAuth2 credentials.
-	config.RedirectURL = "http://localhost:8090"
+	// config.RedirectURL = "http://localhost:8090"
 	// Use the following redirect URI if launchWebServer=false in oauth2.go
-	// config.RedirectURL = "urn:ietf:wg:oauth:2.0:oob"
+	config.RedirectURL = "urn:ietf:wg:oauth:2.0:oob"
 
 	cacheFile, err := tokenCacheFile()
 	if err != nil {

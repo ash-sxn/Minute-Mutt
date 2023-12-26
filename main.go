@@ -41,10 +41,8 @@ func main() {
 		}
 	}
 
-	outputDir := "./"
-	maxResolution := "1080"
-	startTime := "22:00"
-	endTime := "06:00"
+	outputDir := os.Getenv("OUTPUT_DIR")
+	maxResolution := os.Getenv("MAX_RESOLUTION")
 	csvHistoryFilename := "pkg/database/history_queue.csv"
 
 	// Load the history of downloaded videos
@@ -62,7 +60,7 @@ func main() {
 	for _, video := range videoQueue.Videos {
 		fmt.Printf("ID: %s, Title: %s\n", video.ID, video.Title)
 		if _, alreadyDownloaded := downloadedVideos[video.ID]; !alreadyDownloaded {
-			downloader.DownloadVideo(video.ID, outputDir, maxResolution, startTime, endTime)
+			downloader.DownloadVideo(video.ID, outputDir, maxResolution)
 			util.AddVideoToCSV(video, csvHistoryFilename)
 		} else {
 			fmt.Printf("Video %s has already been downloaded. Skipping.\n", video.ID)
