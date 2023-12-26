@@ -30,7 +30,7 @@ func main() {
 	videoQueue := util.NewVideoQueue()
 
 	for _, channel := range allSubscribedChannels {
-		videos, err := myYoutube.FetchLatestVideos(service, channel.ID, 1) // Fetch the latest 1 videos
+		videos, err := myYoutube.FetchLatestVideos(service, channel.ID, 5) // Fetch the latest 1 videos
 		if err != nil {
 			log.Printf("Error fetching latest videos for channel %s: %v", channel.Name, err)
 			continue
