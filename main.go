@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/ash-sxn/Minute-Mutt/pkg/auth"
 	"github.com/ash-sxn/Minute-Mutt/pkg/downloader"
@@ -12,7 +14,15 @@ import (
 	"google.golang.org/api/youtube/v3"
 )
 
+const toDownloadFilePath = "ToDownload"
+
 func main() {
+
+	// Check if we should download videos
+	shouldDownload, err := checkDownloadPreference(toDownloadFilePath)
+	if err != nil {
+		log.Fatalf("Error checking download preference: %v", err)
+	}
 	// Corrected to use the alias for the official YouTube package
 	const youtubeScope = youtube.YoutubeReadonlyScope
 	client := auth.GetClient(youtubeScope)
@@ -60,10 +70,39 @@ func main() {
 	for _, video := range videoQueue.Videos {
 		fmt.Printf("ID: %s, Title: %s\n", video.ID, video.Title)
 		if _, alreadyDownloaded := downloadedVideos[video.ID]; !alreadyDownloaded {
-			downloader.DownloadVideo(video.ID, outputDir, maxResolution)
+			if shouldDownload {
+				// Download the video if the preference is set to true
+				err := downloader.DownloadVideo(video.ID, outputDir, maxResolution)
+				if err != nil {
+					// Print the error message if the download fails
+					fmt.Printf("Error downloading video ID %s: %v\n", video.ID, err)
+				}
+			}
+			// Add video to CSV regardless of download preference
 			util.AddVideoToCSV(video, csvHistoryFilename)
 		} else {
 			fmt.Printf("Video %s has already been downloaded. Skipping.\n", video.ID)
 		}
 	}
+
+	// At the end of the first run, write 'true' to the ToDownload file to enable future downloads
+	if !shouldDownload {
+		if err := ioutil.WriteFile(toDownloadFilePath, []byte("true"), 0644); err != nil {
+			log.Fatalf("Error writing to ToDownload file: %v", err)
+		}
+	}
+}
+
+func checkDownloadPreference(filePath string) (bool, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// If the file does not exist, it's the first run, and we do not download videos
+			return false, nil
+		}
+		return false, err
+	}
+
+	// If the file contains 'true', return true
+	return strings.TrimSpace(string(content)) == "true", nil
 }
