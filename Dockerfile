@@ -44,8 +44,14 @@ COPY --from=ffmpeg-builder /usr/local/bin/bin/ffprobe /usr/local/bin/ffprobe
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
+# Copy the client_secret.json file into the container
+COPY client_secret.json /app/client_secret.json
+
 # Copy the compiled Go binary from the go-builder stage
 COPY --from=go-builder /main /app/main
+
+# Copy the history_queue.csv file from your project into the image
+COPY pkg/database/history_queue.csv /app/pkg/database/history_queue.csv
 
 # Set default environment variables needed for our image
 ENV OUTPUT_DIR="/watch"
