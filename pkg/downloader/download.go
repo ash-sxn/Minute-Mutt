@@ -13,6 +13,7 @@ func DownloadVideo(videoID, outputDir, maxResolution string) error {
 	cmd := exec.Command(
 		"yt-dlp",
 		"-S", fmt.Sprintf("res:%s", maxResolution),
+		"--merge-output-format", "mp4", // This line ensures the output is in MP4 format
 		"-P", outputDir,
 		videoID,
 	)

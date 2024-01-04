@@ -1,47 +1,70 @@
-# Start from the official Golang image
-FROM golang:1.20
+# Builder stage for ffmpeg
+FROM debian:bullseye-slim as ffmpeg-builder
 
-# Install Python, pip, and any other necessary packages
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-venv \
-    cron supervisor \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install curl and ca-certificates to download files, and xz-utils to extract the tarball
+RUN apt-get update && apt-get install -y curl ca-certificates xz-utils && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create a virtual environment for Python packages
-RUN python3 -m venv /opt/venv
+# Download and extract the ffmpeg static build
+RUN curl -L https://github.com/yt-dlp/FFmpeg-Builds/releases/download/autobuild-2024-01-02-14-09/ffmpeg-N-113171-g85b8d59ec7-linux64-gpl.tar.xz | \
+    tar xJ --strip-components=1 -C /usr/local/bin
 
-# Install yt-dlp in the virtual environment
-RUN /opt/venv/bin/pip install --no-cache-dir yt-dlp
+# Builder stage for Go application
+FROM golang:1.20-bullseye as go-builder
 
-# Set the PATH to include the virtual environment's bin directory
-ENV PATH="/opt/venv/bin:$PATH"
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the go.mod and go.sum files first to leverage Docker cache
+COPY go.mod go.sum ./
+
+# Download all the dependencies that are required
+RUN go mod download
+
+# Copy the rest of the application source code
+COPY . .
+
+# Build the Go app
+RUN go build -o /main .
+
+# Final stage
+FROM python:3.10-slim-bullseye
+
+# Install curl and other necessary utilities
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Install yt-dlp
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/download/2023.12.30/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
+
+# Copy ffmpeg and ffprobe binaries from the ffmpeg-builder stage
+COPY --from=ffmpeg-builder /usr/local/bin/bin/ffmpeg /usr/local/bin/ffmpeg
+COPY --from=ffmpeg-builder /usr/local/bin/bin/ffprobe /usr/local/bin/ffprobe
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the client_secret.json file into the container
+COPY client_secret.json /app/client_secret.json
+
+# Copy the compiled Go binary from the go-builder stage
+COPY --from=go-builder /main /app/main
+
+# Copy the history_queue.csv file from your project into the image
+COPY pkg/database/history_queue.csv /app/pkg/database/history_queue.csv
 
 # Set default environment variables needed for our image
 ENV OUTPUT_DIR="/watch"
 ENV MAX_RESOLUTION="144"
 ENV CRON_SCHEDULE="59 23 31 2 *"
 
-
-# Set the Current Working Directory inside the container
-WORKDIR /app
-
-# Copy everything from the current directory to the PWD (Present Working Directory) inside the container
-COPY . .
-
-# Download all the dependencies that are required
-RUN go mod download
-
-# Build the Go app
-RUN go build -o main .
-
-# Copy the supervisord configuration file
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Copy the script that will set up the cron job
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Start supervisord as the default command of the container
+# Install cron and clean up in one layer to reduce image size
+RUN apt-get update && apt-get install -y cron && \
+    rm -rf /var/lib/apt/lists/*
+
+# Start the entrypoint script
 CMD ["/entrypoint.sh"]
