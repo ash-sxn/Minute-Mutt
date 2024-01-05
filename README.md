@@ -24,6 +24,9 @@ To use Minute-Mutt, you can either run it locally or use the provided Docker ima
    - Alternatively, you can contact me to add your email to the authorized users list. Reach out on Twitter at [@ash_sxn](https://twitter.com/ash_sxn) or email me at ash.191245141@gmail.com.
 5. Place the `client_secret.json` file in the root directory of the project.
 6. Run `go run main.go` and follow the prompts to authenticate with the YouTube API.
+7. the program will provide you with a link to Google sign-in page, after signing in you'll get an authentication token which you'll need to paste in the program.
+8. After this I'll search for all the latest videos of your subscribed channels and store them in `pkg/database/history_queue.csv` so we don't download these videos in the future
+9. when you run the program again It will download the new videos released by the subscribed channels that are not present in `pkg/database/history_queue.csv`.
 
 ### Docker Installation
 
@@ -32,6 +35,10 @@ To use Minute-Mutt, you can either run it locally or use the provided Docker ima
 
 Replace `MAX_RESOLUTION` and `CRON_SCHEDULE` with your preferred settings, and replace `<local-download-locatoin>` with the directory where you want downloaded videos to be saved, like `docker run -it -e MAX_RESOLUTION="1080" -e CRON_SCHEDULE="*/2 * * * *" -v ~/watch:/watch ash191245141/minute-mutt-cron:1.0` will download videos to the `~/watch` directory with 1080p quality and check for new videos every 2 minutes(get familiar with cron to understand this) and download them to the `~/watch` directory if available.
 
+3. the program will provide you with a link to Google sign-in page, after signing in you'll get an authentication token which you'll need to paste in the program.
+4. After this I'll search for all the latest videos of your subscribed channels and store them in `pkg/database/history_queue.csv` so we don't download these videos in the future
+5. Then you can close the docker container with `ctrl+c`, and then start the container with `docker start <cont name>`, and the program will download new videos whenever cron runs the program.
+6. You can also add `--restart=always` option in your docker run command to always start the docker container after you restart your system
 ## Usage
 
 After installation, Minute-Mutt will automatically check for new videos from your subscribed channels based on the CRON_SCHEDULE. Downloaded videos will be saved to the specified output directory.
