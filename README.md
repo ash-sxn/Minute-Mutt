@@ -19,10 +19,11 @@ To use Minute-Mutt, you can either run it locally or use the provided Docker ima
 1. Clone the repository to your local machine.
 2. Ensure you have Golang, yt-dlp, and ffmpeg installed.
 3. Obtain a `client_secret.json` file for YouTube API authentication:
+   - Please don't misuse my key, it's a restricted key with a limited quota per day for the free tier
    - You can create your own `client_secret.json` by setting up a project in the Google Developers Console and enabling the YouTube Data API v3.
    - Alternatively, you can contact me to add your email to the authorized users list. Reach out on Twitter at [@ash_sxn](https://twitter.com/ash_sxn) or email me at ash.191245141@gmail.com.
-4. Place the `client_secret.json` file in the root directory of the project.
-5. Run `go run main.go` and follow the prompts to authenticate with the YouTube API.
+5. Place the `client_secret.json` file in the root directory of the project.
+6. Run `go run main.go` and follow the prompts to authenticate with the YouTube API.
 
 ### Docker Installation
 
