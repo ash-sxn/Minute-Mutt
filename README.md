@@ -31,9 +31,9 @@ To use Minute-Mutt, you can either run it locally or use the provided Docker ima
 ### Docker Installation
 
 1. Pull the Docker image from Docker Hub: `docker pull ash191245141/minute-mutt-cron`
-2. Run the Docker container with the required environment variables:`docker run -it -e MAX_RESOLUTION="1080" -e CRON_SCHEDULE="0 0-6 * * *" -v <local-download-location>:/watch ash191245141/minute-mutt-cron:1.0`
+2. Run the Docker container with the required environment variables:`docker run -it -e MAX_RESOLUTION="1080" -e CRON_SCHEDULE="0 0-6 * * *" -v <local-download-location>:/watch ash191245141/minute-mutt-cron:1.1`
 
-Replace `MAX_RESOLUTION` and `CRON_SCHEDULE` with your preferred settings, and replace `<local-download-locatoin>` with the directory where you want downloaded videos to be saved, like `docker run -it -e MAX_RESOLUTION="1080" -e CRON_SCHEDULE="*/2 * * * *" -v ~/watch:/watch ash191245141/minute-mutt-cron:1.0` will download videos to the `~/watch` directory with 1080p quality and check for new videos every 2 minutes(get familiar with cron to understand this) and download them to the `~/watch` directory if available.
+Replace `MAX_RESOLUTION` and `CRON_SCHEDULE` with your preferred settings, and replace `<local-download-locatoin>` with the directory where you want downloaded videos to be saved, like `docker run -it -e MAX_RESOLUTION="1080" -e CRON_SCHEDULE="*/2 * * * *" -v ~/watch:/watch ash191245141/minute-mutt-cron:1.1` will download videos to the `~/watch` directory with 1080p quality and check for new videos every 2 minutes(get familiar with cron to understand this) and download them to the `~/watch` directory if available.
 
 3. the program will provide you with a link to Google sign-in page, after signing in you'll get an authentication token which you'll need to paste in the program.
 4. After this I'll search for all the latest videos of your subscribed channels and store them in `pkg/database/history_queue.csv` so we don't download these videos in the future
